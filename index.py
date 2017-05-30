@@ -12,7 +12,7 @@ def server_static(filepath = 'index.html'):
 @post('/<motor>')
 def server_static(motor):
     m = motors.Motor(motor,1)
-    m.forward()
+    m.forward(100)
     time.sleep(2)
     m.stop()
     return
