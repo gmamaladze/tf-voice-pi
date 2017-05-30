@@ -1,26 +1,47 @@
 from bottle import route, run, template
 from bottle import static_file
-from bottle import get, post, request
+from bottle import get, post, put, request
 import time
-import motors
+import robot
 
 @get('/<filepath:path>')
 @get('/')
 def server_static(filepath = 'index.html'):
     return static_file(filepath, root='./static/')
 
-@post('/<motor>')
-def server_static(motor):
-    m = motors.Motor(motor,1)
-    m.forward(100)
-    time.sleep(2)
-    m.stop()
-    return
+@put('/forward')
+def server_static():
+    print("FWD")
+    r = robot.Robot()
+    r.forward
 
+@put('/backward')
+def server_static():
+    print("BWD")
+    r = robot.Robot()
+    r.backward
+
+@put('/left')
+def server_static():
+    print("LEFT")
+    r = robot.Robot()
+    r.left
+
+@put('/right')
+def server_static():
+    print("RIGHT")
+    r = robot.Robot()
+    r.right
+
+@put('/stop')
+def server_static():
+    print("STOP")
+    r = robot.Robot()
+    r.stop
 
 
 @route('/hello/<name>')
 def index(name):
     return template('<b>Hello {{name}}</b>!', name=name)
 
-run(host='localhost', port=8080)
+run(host='0.0.0.0', port=80)

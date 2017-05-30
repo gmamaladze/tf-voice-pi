@@ -1,18 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>title</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
-  </head>
-  <body>
-    <table>
-      <tr>
-        <td class="arrow" onclick="left();">
-          &larr;
-        </td>
-      </tr>
-    </table>
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <title>title</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <table>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <img src="img/up.png" onmousedown="put('forward')" onmouseup="put('stop')"></img>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <img src="img/left.png" onmousedown="put('left')" onmouseup="put('stop')"></img>
+      </td>
+      <td>
+        <img src="img/down.png" onmousedown="put('backward')" onmouseup="put('stop')"></img>
+      </td>
+      <td>
+        <img src="img/right.png" onmousedown="put('right')" onmouseup="put('stop')"></img>
+      </td>
+    </tr>
+  </table>
+</body>
+
 </html>
