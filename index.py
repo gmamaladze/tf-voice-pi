@@ -2,7 +2,15 @@ from bottle import route, run, template
 from bottle import static_file
 from bottle import get, post, put, request
 import time
-import robot
+import os
+
+isRaspberryPi = ( os.uname()[4][:3] == 'arm' )
+print(isRaspberryPi)
+
+if isRaspberryPi:
+    import robot
+else:
+    import robotMock as robot
 
 @get('/<filepath:path>')
 @get('/')
@@ -19,29 +27,29 @@ def server_static():
 def server_static():
     print("BWD")
     r = robot.Robot()
-    r.backward
+    r.backward()
 
 @put('/left')
 def server_static():
     print("LEFT")
     r = robot.Robot()
-    r.left
+    r.left()
 
 @put('/right')
 def server_static():
     print("RIGHT")
     r = robot.Robot()
-    r.right
+    r.right()
 
 @put('/stop')
 def server_static():
     print("STOP")
     r = robot.Robot()
-    r.stop
+    r.stop()
 
 
-@route('/hello/<name>')
-def index(name):
-    return template('<b>Hello {{name}}</b>!', name=name)
-
-run(host='0.0.0.0', port=80)
+try:
+    run(host='0.0.0.0', port=80)
+except PermissionError:
+    print("Warning: Need sudo to listen on 0.0.0.0")
+    run(host='localhost', port=8080)

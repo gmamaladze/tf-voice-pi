@@ -9,25 +9,25 @@
 </head>
 
 <body>
-  <table>
+  <table class="center-block">
     <tr>
       <td>
       </td>
       <td>
-        <img src="img/up.png" onmousedown="put('forward')" onmouseup="put('stop')"></img>
+        <img id="forward" src="img/up.png" onmousedown="down(this)" onmouseup="up(this)"></img>
       </td>
       <td>
       </td>
     </tr>
     <tr>
       <td>
-        <img src="img/left.png" onmousedown="put('left')" onmouseup="put('stop')"></img>
+        <img id="left" src="img/left.png" onmousedown="down(this)" onmouseup="up(this)"></img>
       </td>
       <td>
-        <img src="img/down.png" onmousedown="put('backward')" onmouseup="put('stop')"></img>
+        <img id="backward" src="img/down.png" onmousedown="down(this)" onmouseup="up(this)"></img>
       </td>
       <td>
-        <img src="img/right.png" onmousedown="put('right')" onmouseup="put('stop')"></img>
+        <img id="right" src="img/right.png" onmousedown="down(this)" onmouseup="up(this)"></img>
       </td>
     </tr>
   </table>
