@@ -1,13 +1,11 @@
-import RPi.GPIO as GPIO
-import time
-from time import sleep
+import Motor
 import PiMotor
 
 class Robot:
 
     def __init__(self, left = "MOTOR4", right = "MOTOR2", config = 1):
-        self.leftMotor = PiMotor.Motor(left, config)
-        self.rightMotor = PiMotor.Motor(right, config)
+        self.leftMotor = Motor.Motor(left, config)
+        self.rightMotor = Motor.Motor(right, config)
 
     def forward(self):
         self.leftMotor.reverse(100)
