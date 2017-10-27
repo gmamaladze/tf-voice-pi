@@ -20,6 +20,7 @@ class Classifier:
             return 0;
 
 def load_graph(filename):
+    print(filename)
     with tf.gfile.FastGFile(filename, 'rb') as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
