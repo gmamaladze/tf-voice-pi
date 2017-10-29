@@ -1,3 +1,14 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import itertools
+import argparse
+import sys
+
+from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
+
+
 import tensorflow as tf
 
 class Classifier:
@@ -7,11 +18,11 @@ class Classifier:
         self.prev_index = -1;
         self.confidence = 0;
 
-    def run(self, wav_data):
-        index = run_graph(wav_data);
+    def run(self, wav_data, sampleRateList):
+        index, score = run_graph(wav_data, sampleRateList);
         self.confidence = self.get_confidence(index);
         self.prev_index = index;
-        return self.labels[index], self.confidence;
+        return self.labels[index], self.confidence, index;
 
     def get_confidence(self, index):
         if self.prev_index==index:
@@ -31,12 +42,18 @@ def load_labels(filename):
     return [line.rstrip() for line in tf.gfile.GFile(filename)]
 
 
-def run_graph(wav_data):
-    INPUT_LAYER_NAME='wav_data:0',
-    OUTPUT_LAYER_NAME='labels_softmax:0',
+def run_graph(wav_data1, sampleRateList):
+    INPUT_LAYER_NAME='decoded_sample_data:0'
+    OUTPUT_LAYER_NAME='labels_softmax:0'
+    SAMPLE_RATE_NAME = "decoded_sample_data:1";
 
     with tf.Session() as sess:
         softmax_tensor = sess.graph.get_tensor_by_name(OUTPUT_LAYER_NAME)
-        predictions, = sess.run(softmax_tensor, {INPUT_LAYER_NAME: wav_data})
-        return predictions.argmax()
+        predictions, = sess.run(softmax_tensor, {INPUT_LAYER_NAME: wav_data1, SAMPLE_RATE_NAME: sampleRateList})
+        idx = predictions.argmax()
+        confidence  = predictions[idx]
+        if (confidence>0.15):
+            return idx, confidence
+        else:
+            return 1, 0.9
 
