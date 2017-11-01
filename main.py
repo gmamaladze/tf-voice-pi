@@ -1,5 +1,5 @@
 import os
-import record
+import commands
 
 isRaspberryPi = (os.uname()[4][:3] == 'arm')
 print("Is raspberry pi:", isRaspberryPi)
@@ -10,23 +10,13 @@ else:
     import mic
 
 
-def print_labels():
+def print_labels(threshold):
     labels_stream = \
-        record.get_labels(
-            record.get_sound_data(mic.get_mic_data(record.CHUNK)))
+            commands.get_labels(mic.get_mic_data(1000), threshold)
 
     for current_label in labels_stream:
         print(current_label)
 
-
-def print_noise():
-    noise_stream = \
-        record.get_sound_data(
-            mic.get_mic_data(record.CHUNK))
-
-    for noise in noise_stream:
-        print(len(noise))
-
-
-#record.calibrate_silence(mic.get_mic_data(record.CHUNK))
-print_labels()
+#threshold = commands.calibrate_silence(mic.get_mic_data(400))
+threshold = .00001
+print_labels(threshold)

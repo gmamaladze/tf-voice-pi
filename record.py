@@ -60,10 +60,10 @@ def get_labels(sound_data):
     classify.load_graph()
     labels = classify.load_labels()
 
-    for sound_data in sound_data:
+    for sound in sound_data:
         relevant_predictions = []
-        for start_idx in range(0, len(sound_data), WINDOW_STEP):
-            window = sound_data[start_idx:RATE + start_idx]
+        for start_idx in range(0, len(sound), WINDOW_STEP):
+            window = sound[start_idx:RATE + start_idx]
             if len(window) != RATE:
                 continue
             result = classify.run_graph(window, RATE)
