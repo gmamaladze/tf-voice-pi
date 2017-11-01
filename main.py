@@ -13,8 +13,7 @@ else:
 def print_labels():
     labels_stream = \
         record.get_labels(
-            record.get_sound_data(
-                mic.get_mic_data(record.CHUNK)))
+            record.get_sound_data(mic.get_mic_data(record.CHUNK)))
 
     for current_label in labels_stream:
         print(current_label)

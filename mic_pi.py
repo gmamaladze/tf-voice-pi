@@ -11,7 +11,7 @@ end = False
 
 
 def get_mic_data(chunk_size, device="sysdefault:CARD=Device"):
-    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NONBLOCK, device)
+    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
     inp.setchannels(CHANNELS)
     inp.setrate(RATE)
     inp.setformat(FORMAT)
