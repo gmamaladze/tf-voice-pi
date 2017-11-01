@@ -11,6 +11,7 @@ end = False
 
 
 def get_mic_data(chunk_size, device="none"):
+    print("Initializing audio.")
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT,
                     channels=CHANNELS,

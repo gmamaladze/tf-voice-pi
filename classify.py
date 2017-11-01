@@ -28,11 +28,10 @@ def load_graph(filename="conv_actions_frozen.pb"):
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         tf.import_graph_def(graph_def, name='')
-    print("Done.")
 
 
 def load_labels(filename="conv_actions_labels.txt"):
-    print("Load labels: ", filename)
+    print("Loading labels: ", filename)
     return [line.rstrip() for line in tf.gfile.GFile(filename)]
 
 
