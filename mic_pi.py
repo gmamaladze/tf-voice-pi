@@ -30,8 +30,8 @@ def get_mic_data(chunk_size, device="sysdefault:CARD=Device"):
             data = np.array(data)
             data_int = np.frombuffer(data, dtype=dt)
             data_float = np.true_divide(data_int, MAX_INT16)
-            data_buffer = np.concatenate(data_buffer, data_float)
-            if len(buffer) >= chunk_size:
+            data_buffer = np.concatenate([data_buffer, data_float])
+            if len(data_buffer) >= chunk_size:
                 data_buffer = data_buffer[chunk_size:]
                 yield data_buffer[0:chunk_size]
             else:
