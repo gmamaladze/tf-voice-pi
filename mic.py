@@ -1,8 +1,11 @@
 import pyaudio
+import numpy as np
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
+MAX_INT16 = np.iinfo(np.int16).max
+
 
 end = False
 
@@ -15,9 +18,13 @@ def get_mic_data(chunk_size):
                     input=True,
                     frames_per_buffer=chunk_size)
 
+    dt = np.dtype(np.int16)
+    dt.newbyteorder('>')
+
     while not end:
-        data = stream.read(chunk_size)
-        yield data
+        data = np.array(stream.read(chunk_size))
+        yield np.frombuffer(data, dtype=dt) / MAX_INT16
 
     stream.stop_stream()
     stream.close()
+

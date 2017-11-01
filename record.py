@@ -13,22 +13,6 @@ THRESHOLD = .1  # The threshold intensity that defines silence
 FRAME_COUNT = RATE // CHUNK * RECORD_SECONDS
 
 CENTER_INDEX = FRAME_COUNT // 2
-MAX_INT16 = np.iinfo(np.int16).max
-
-
-def word2int16(low_byte, high_byte):
-    return int.from_bytes([low_byte, high_byte], 'big', signed=True)
-
-
-def encode(data_16bit):
-    length = len(data_16bit) // 2
-    result = np.empty(length)
-    for i in range(0, length):
-        index = 2 * i
-        low_byte = data_16bit[index]
-        high_byte = data_16bit[index + 1]
-        result[i] = word2int16(low_byte, high_byte) / MAX_INT16
-    return result
 
 
 def get_mass_center_idx(weights):
@@ -45,8 +29,7 @@ def get_mass_center_idx(weights):
 def get_sound_data(mic_data):
     frames = []
     frame_square_sums = []
-    for data in mic_data:
-        frame = encode(data)
+    for frame in mic_data:
         frames.append(frame)
         square_sum = sum(frame**2)
         frame_square_sums.append(square_sum)
