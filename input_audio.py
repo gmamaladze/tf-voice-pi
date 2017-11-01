@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Open the device in blocking capture mode. The last argument could
     # just as well have been zero for blocking mode. Then we could have
     # left out the sleep call in the bottom of the loop
-    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NONBLOCK, "sysdefault:CARD=Device'")
+    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NONBLOCK, "sysdefault:CARD=Device")
 
     # Set attributes: Mono, 16000 Hz, 16 bit little endian samples
     inp.setchannels(1)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     # The period size controls the internal number of frames per period.
     # The significance of this parameter is documented in the ALSA api.
-    # For our purposes, it is suficcient to know that reads from the device
+    # For our purposes, it is sufficient to know that reads from the device
     # will return this many frames. Each frame being 2 bytes long.
     # This means that the reads below will return either 320 bytes of data
     # or 0 bytes of data. The latter is possible because we are in nonblocking
