@@ -23,13 +23,16 @@ def print_predictions(predictions, labels):
 
 
 def load_graph(filename="conv_actions_frozen.pb"):
+    print("Loading graph: ", filename)
     with tf.gfile.FastGFile(filename, 'rb') as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         tf.import_graph_def(graph_def, name='')
+    print("Done.")
 
 
 def load_labels(filename="conv_actions_labels.txt"):
+    print("Load labels: ", filename)
     return [line.rstrip() for line in tf.gfile.GFile(filename)]
 
 
