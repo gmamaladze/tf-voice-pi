@@ -46,7 +46,8 @@ def get_sound_data(mic_data):
             continue
 
         if mass_center_idx == CENTER_INDEX:
-            sound_data = np.reshape(np.concatenate(frames), (FRAME_COUNT * CHUNK, 1))
+            all_frames = np.concatenate(frames)
+            sound_data = np.reshape(all_frames, (len(all_frames), 1))
             yield sound_data
 
 
