@@ -2,7 +2,7 @@ import classify
 import numpy as np
 
 
-CHUNK = 1000
+CHUNK = 4000
 RATE = 16000
 RECORD_SECONDS = 2
 WINDOW_STEP = RATE // 4
@@ -45,6 +45,7 @@ def get_sound_data(mic_data):
         if total_weight < THRESHOLD:
             continue
 
+        #print(mass_center_idx)
         if mass_center_idx == CENTER_INDEX:
             all_frames = np.concatenate(frames)
             sound_data = np.reshape(all_frames, (len(all_frames), 1))

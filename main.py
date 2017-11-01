@@ -9,10 +9,21 @@ if isRaspberryPi:
 else:
     import mic
 
-labels_stream = \
-    record.get_labels(
-        record.get_sound_data(
-            mic.get_mic_data(record.CHUNK)))
 
-for current_label in labels_stream:
-    print(current_label)
+def print_labels():
+    labels_stream = \
+        record.get_labels(
+            record.get_sound_data(
+                mic.get_mic_data(record.CHUNK)))
+
+    for current_label in labels_stream:
+        print(current_label)
+
+
+def print_noise():
+    noise_stream = \
+            record.get_sound_data(
+                mic.get_mic_data(record.CHUNK))
+
+    for noise in noise_stream:
+        print(len(noise))
