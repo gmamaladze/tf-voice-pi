@@ -18,6 +18,8 @@
           <option value="int.from_bytes" />
           <option value="tensorflow" />
           <option value="pyaudio" />
+          <option value="Arrow.RPi" />
+          <option value="Motor.RPi" />
         </list>
       </option>
     </inspection_tool>

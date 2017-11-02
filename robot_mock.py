@@ -1,6 +1,5 @@
 class Robot:
-
-    def __init__(self, left = "MOTOR4", right = "MOTOR2", config = 1):
+    def __init__(self, left="MOTOR4", right="MOTOR2", config=1):
         print("init")
 
     def forward(self):

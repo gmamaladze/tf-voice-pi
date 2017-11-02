@@ -5,12 +5,12 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 MAX_INT16 = np.iinfo(np.int16).max
-
+CHUNK_SIZE = 1000
 
 end = False
 
 
-def get_mic_data(chunk_size, device="none"):
+def get_mic_data(chunk_size=1000, device="none"):
     print("Initializing audio.")
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT,

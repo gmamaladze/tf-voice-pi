@@ -7,6 +7,25 @@ from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 import tensorflow as tf
 
+DEFAULT_GRAPH_FILE = "conv_actions_frozen.pb"
+DEFAULT_LABELS_FILE = "conv_actions_labels.txt"
+DEFAULT_SAMPLE_RATE = 16000
+
+
+class Classifier:
+    def __init__(self,
+                 graph_file=DEFAULT_GRAPH_FILE,
+                 labels_file=DEFAULT_LABELS_FILE,
+                 sample_rate=DEFAULT_SAMPLE_RATE):
+        load_graph(graph_file)
+        self.labels = load_labels(labels_file)
+        self.sample_rate = sample_rate
+        pass
+
+    def run(self, data):
+        predictions = run_graph(data, self.sample_rate)
+        return get_best(predictions, self.labels)
+
 
 def get_best(predictions, labels):
     idx = predictions.argmax()
@@ -22,7 +41,7 @@ def print_predictions(predictions, labels):
         print('%s (score = %.5f)' % (human_string, score))
 
 
-def load_graph(filename="conv_actions_frozen.pb"):
+def load_graph(filename=DEFAULT_GRAPH_FILE):
     print("Loading graph: ", filename)
     with tf.gfile.FastGFile(filename, 'rb') as f:
         graph_def = tf.GraphDef()
@@ -30,9 +49,14 @@ def load_graph(filename="conv_actions_frozen.pb"):
         tf.import_graph_def(graph_def, name='')
 
 
-def load_labels(filename="conv_actions_labels.txt"):
+def load_labels(filename=DEFAULT_LABELS_FILE):
     print("Loading labels: ", filename)
-    return [line.rstrip() for line in tf.gfile.GFile(filename)]
+    labels = [line.rstrip() for line in tf.gfile.GFile(filename)]
+    for label in labels:
+        if not (label.startswith("_") and label.endswith("_")):
+            print(label)
+    return labels
+
 
 
 INPUT_LAYER_NAME = "decoded_sample_data:0"

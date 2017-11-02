@@ -1,9 +1,8 @@
 import Motor
-import PiMotor
+
 
 class Robot:
-
-    def __init__(self, left = "MOTOR4", right = "MOTOR2", config = 1):
+    def __init__(self, left="MOTOR4", right="MOTOR2", config=1):
         self.leftMotor = Motor.Motor(left, config)
         self.rightMotor = Motor.Motor(right, config)
 

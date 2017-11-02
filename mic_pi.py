@@ -6,11 +6,13 @@ FORMAT = alsaaudio.PCM_FORMAT_S16_LE
 CHANNELS = 1
 RATE = 16000
 MAX_INT16 = np.iinfo(np.int16).max
+CHUNK_SIZE = 1000
+DEFAULT_DEVICE = "sysdefault:CARD=Device"
 
 end = False
 
 
-def get_mic_data_asis(device="sysdefault:CARD=Device"):
+def get_mic_data_asis(device=DEFAULT_DEVICE):
     print("Initializing audio.")
     inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
     inp.setchannels(CHANNELS)
@@ -18,9 +20,6 @@ def get_mic_data_asis(device="sysdefault:CARD=Device"):
     inp.setformat(FORMAT)
 
     inp.setperiodsize(160)
-
-    dt = np.dtype(np.int16)
-    dt.newbyteorder('>')
 
     while not end:
         l, data = inp.read()
@@ -30,7 +29,9 @@ def get_mic_data_asis(device="sysdefault:CARD=Device"):
             time.sleep(.001)
 
 
-def get_mic_data(chunk_size, device):
+def get_mic_data(chunk_size=CHUNK_SIZE, device=DEFAULT_DEVICE):
+    dt = np.dtype(np.int16)
+    dt.newbyteorder('>')
 
     data_buffer = np.array([], dtype=np.float)
     for data in get_mic_data_asis(device=device):

@@ -10,7 +10,7 @@ print(isRaspberryPi)
 if isRaspberryPi:
     import robot
 else:
-    import robotMock as robot
+    import robot_mock as robot
 
 @get('/<filepath:path>')
 @get('/')
