@@ -8,9 +8,8 @@ def is_silence(data, threshold):
     return square_mean < threshold
 
 
-def get_labels(data_stream, classifier, threshold):
+def get_raw(data_stream, threshold):
     all_frames = np.array([], dtype=np.float)
-    classifier.run(np.zeros((RATE, 1)))  # void call to avoid latency on firs word later
     print("Listening for commands:")
     for data in data_stream:
         all_frames = np.concatenate([all_frames, data])
@@ -22,9 +21,16 @@ def get_labels(data_stream, classifier, threshold):
 
         first_third = all_frames[0:RATE // 3]
         if is_silence(first_third, threshold):
-            yield 0, 0, "."
+            yield None
             continue
+        yield all_frames
 
+
+def get_labels(data_stream, classifier, threshold):
+    classifier.run(np.zeros((RATE, 1)))  # void call to avoid latency on firs word later
+    for all_frames in get_raw(data_stream, threshold):
+        if all_frames is None:
+            continue
         input_tensor = np.reshape(all_frames, (RATE, 1))
         yield classifier.run(input_tensor)
 

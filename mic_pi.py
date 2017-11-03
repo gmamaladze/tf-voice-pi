@@ -7,7 +7,7 @@ CHANNELS = 1
 RATE = 16000
 MAX_INT16 = np.iinfo(np.int16).max
 CHUNK_SIZE = 1000
-DEFAULT_DEVICE = "sysdefault:CARD=Device"
+DEFAULT_DEVICE = "hw:CARD=Device,DEV=0"
 
 end = False
 
@@ -31,7 +31,7 @@ def get_mic_data_asis(device=DEFAULT_DEVICE):
 
 def get_mic_data(chunk_size=CHUNK_SIZE, device=DEFAULT_DEVICE):
     dt = np.dtype(np.int16)
-    dt.newbyteorder('>')
+    dt.newbyteorder('<')
 
     data_buffer = np.array([], dtype=np.float)
     for data in get_mic_data_asis(device=device):
