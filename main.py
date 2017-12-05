@@ -25,5 +25,15 @@ labels_stream = \
             mic.get_mic_data(),
             classifier)
 
+raw_stream = \
+    voicecmd.get_labels_raw(
+        mic.get_mic_data(),
+        classifier)
+
+'''
 for current_label in labels_stream:
     print(current_label)
+'''
+
+for idx, score, label in raw_stream:
+    print(idx, score, label)
