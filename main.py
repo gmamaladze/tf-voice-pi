@@ -10,24 +10,20 @@ if isRaspberryPi:
 else:
     import mic
 
-
 classifier = classify.Classifier()
 
-max_silence, avg_sound = \
+'''
+max_silence, avg_sound, max_sound = \
     voicecmd.calibrate_silence(
         mic.get_mic_data(),
         classifier)
+'''
+# threshold = (avg_sound - max_silence) / 4 + max_silence
 
-threshold = (avg_sound - max_silence) / 4 + max_silence
-print ("Threshold: ", threshold)
 labels_stream = \
-    voicecmd.get_confident_labels(
-        voicecmd.get_labels(
+    voicecmd.get_labels_simple(
             mic.get_mic_data(),
-            classifier,
-            threshold))
-
+            classifier)
 
 for current_label in labels_stream:
     print(current_label)
-

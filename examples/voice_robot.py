@@ -1,6 +1,7 @@
 import os
-import voicecmd
+
 import classify
+import voicecmd
 
 isRaspberryPi = (os.uname()[4][:3] == 'arm')
 print("Is raspberry pi:", isRaspberryPi)

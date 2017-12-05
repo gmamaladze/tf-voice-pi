@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 RATE = 16000
 
@@ -59,8 +60,9 @@ def get_confident_labels(labels_stream):
                 confidence += 1
 
 
-def calibrate_silence(data_stream, classifier, sample_count=10):
+def calibrate_silence(data_stream, classifier, sample_count=100):
     max_silence = 0
+    max_sound = 0
     commands = np.array([0])
     frames = []
     print("Calibrating silence threshold. Please say random commands with 2-3 seconds pauses in between.")
@@ -75,8 +77,10 @@ def calibrate_silence(data_stream, classifier, sample_count=10):
         idx, score, label = classifier.run(input_data)
         square_mean = np.mean(input_data ** 2)
         symbol = "." if idx == 0 else "*"
-        print(symbol)
-        frames = []
+        # print(symbol)
+        print(label, ";", score, ";", square_mean)
+        frames.pop(0)
+        max_sound = max(max_sound, math.sqrt(square_mean))
         if idx == 0:
             max_silence = max(max_silence, square_mean)
             sample_count -= 1
@@ -85,4 +89,28 @@ def calibrate_silence(data_stream, classifier, sample_count=10):
         else:
             if score > 0.5:
                 np.append(commands, [square_mean])
-    return max_silence, np.average(commands)
+    return max_silence, np.average(commands), max_sound
+
+
+def get_labels_simple(data_stream, classifier):
+    hit_count = 0
+    hit_index = -1
+    frames = []
+
+    for data in data_stream:
+        frames.append(data)
+        all_frames = np.concatenate(frames)
+        if len(all_frames) < RATE:
+            continue
+        sound_data = np.reshape(all_frames, (len(all_frames), 1))
+        input_data = sound_data[0:RATE]
+        idx, score, label = classifier.run(input_data)
+        frames.pop(0)
+        if idx == hit_index and score > .4:
+            hit_count += 1
+        else:
+            hit_count = 0
+            hit_index = idx
+        if hit_index != 0 and hit_count > 3:
+            yield label
+            frames = []

@@ -1,8 +1,8 @@
-from bottle import route, run, template
-from bottle import static_file
-from bottle import get, post, put, request
-import time
 import os
+
+from bottle import get, put
+from bottle import run
+from bottle import static_file
 
 isRaspberryPi = ( os.uname()[4][:3] == 'arm' )
 print(isRaspberryPi)

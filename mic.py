@@ -1,5 +1,6 @@
 import pyaudio
 import numpy as np
+import struct
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -23,8 +24,9 @@ def get_mic_data(chunk_size=1000, device="none"):
     dt.newbyteorder('>')
 
     while not end:
-        data = np.array(stream.read(chunk_size))
-        data_int = np.frombuffer(data, dtype=dt)
+        chunk = stream.read(chunk_size)
+        count = len(chunk) // 2
+        data_int = struct.unpack('<'+'h'*count, chunk)
         data_float = np.true_divide(data_int, MAX_INT16)
         yield data_float
 
