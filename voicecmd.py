@@ -114,6 +114,8 @@ def get_labels_simple(data_stream, classifier):
         if hit_index != 0 and hit_count > 3:
             yield label
             frames = []
+        else:
+            del frames[0]
 
 
 def get_labels_raw(data_stream, classifier):
@@ -127,3 +129,4 @@ def get_labels_raw(data_stream, classifier):
         sound_data = np.reshape(all_frames, (len(all_frames), 1))
         input_data = sound_data[0:RATE]
         yield classifier.run(input_data)
+        del frames[0]
