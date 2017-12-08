@@ -1,8 +1,9 @@
+import threading
+import Queue
+
 import alsaaudio
-import time
 import numpy as np
 import struct
-import mic_device
 import audioop
 
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
@@ -10,37 +11,43 @@ CHANNELS = 1
 RATE = 16000
 MAX_INT16 = np.iinfo(np.int16).max
 CHUNK_SIZE = 1000
-DEFAULT_DEVICE = "hw:CARD=Device,DEV=0" #None
+DEFAULT_DEVICE = "hw:CARD=Device,DEV=0"  # None
 
 end = False
 
+queue = Queue.Queue()
 
-def get_mic_data(chunk_size=CHUNK_SIZE, device=DEFAULT_DEVICE):
-    if device is None:
-        device = mic_device.select_device()
+
+def get_input_stream(device):
     print("Initializing audio.")
-    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
+    stream = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
+    stream.setchannels(1)
+    stream.setrate(44100)
+    stream.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+    stream.setperiodsize(CHUNK_SIZE * 44100 // 16000)
+    return stream
 
-    chunk_byte_count = chunk_size * 2
-    inp.setchannels(1)
-    inp.setrate(44100)
-    inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-    inp.setperiodsize(160)
 
+inp = get_input_stream(DEFAULT_DEVICE)
+
+
+def worker():
     state = None
-
-    data_buffer = ""
     while not end:
         l, data = inp.read()
-        if l>0:
-            data1, state = audioop.ratecv(data, 2, 1, 44100, 16000, state)
-            data_buffer += data1
-            while len(data_buffer) >= chunk_byte_count:
-                chunk = data_buffer[:chunk_byte_count]
-                data_int = struct.unpack('<'+'h'*chunk_size, chunk)
-                data_float = np.true_divide(data_int, MAX_INT16)
-                yield data_float
-                data_buffer = data_buffer[chunk_byte_count:]
-        else:
-            pass
-            #time.sleep(.001)
+        if l > 0:
+            chunk, state = audioop.ratecv(data, 2, 1, 44100, 16000, state)
+            data_int = struct.unpack('<' + 'h' * (len(chunk) // 2), chunk)
+            data_float = np.true_divide(data_int, MAX_INT16)
+            queue.put(data_float)
+
+
+def get_mic_data():
+    producer = threading.Thread(target=worker)
+    producer.daemon = True
+    producer.start()
+
+    while not end:
+        if queue.qsize() > 2:
+            print("WARNING: Sound buffer overrun!", queue.qsize())
+        yield queue.get()

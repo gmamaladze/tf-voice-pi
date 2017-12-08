@@ -1,8 +1,9 @@
 import numpy as np
 import math
+from collections import deque
 
-RATE = 16000
-
+INPUT_SIZE = 16000
+CHUNK_SIZE = 1000
 
 def is_silence(data, threshold):
     square_mean = np.mean(data ** 2)
@@ -15,12 +16,12 @@ def get_raw(data_stream, threshold):
     for data in data_stream:
         all_frames = np.concatenate([all_frames, data])
         total_length = len(all_frames)
-        if total_length < RATE:
+        if total_length < INPUT_SIZE:
             continue
         else:
-            all_frames = all_frames[total_length - RATE:total_length]
+            all_frames = all_frames[total_length - INPUT_SIZE:total_length]
 
-        first_third = all_frames[0:RATE // 3]
+        first_third = all_frames[0:INPUT_SIZE // 3]
         if is_silence(first_third, threshold):
             yield None
             continue
@@ -28,11 +29,11 @@ def get_raw(data_stream, threshold):
 
 
 def get_labels(data_stream, classifier, threshold):
-    classifier.run(np.zeros((RATE, 1)))  # void call to avoid latency on firs word later
+    classifier.run(np.zeros((INPUT_SIZE, 1)))  # void call to avoid latency on firs word later
     for all_frames in get_raw(data_stream, threshold):
         if all_frames is None:
             continue
-        input_tensor = np.reshape(all_frames, (RATE, 1))
+        input_tensor = np.reshape(all_frames, (INPUT_SIZE, 1))
         yield classifier.run(input_tensor)
 
 
@@ -70,10 +71,10 @@ def calibrate_silence(data_stream, classifier, sample_count=100):
     for data in data_stream:
         frames.append(data)
         all_frames = np.concatenate(frames)
-        if len(all_frames) < RATE:
+        if len(all_frames) < INPUT_SIZE:
             continue
         sound_data = np.reshape(all_frames, (len(all_frames), 1))
-        input_data = sound_data[0:RATE]
+        input_data = sound_data[0:INPUT_SIZE]
         idx, score, label = classifier.run(input_data)
         square_mean = np.mean(input_data ** 2)
         symbol = "." if idx == 0 else "*"
@@ -95,17 +96,12 @@ def calibrate_silence(data_stream, classifier, sample_count=100):
 def get_labels_simple(data_stream, classifier):
     hit_count = 0
     hit_index = -1
-    frames = []
+    frames = np.zeros((INPUT_SIZE, 1))
 
     for data in data_stream:
-        frames.append(data)
-        all_frames = np.concatenate(frames)
-        if len(all_frames) < RATE:
-            continue
-        sound_data = np.reshape(all_frames, (len(all_frames), 1))
-        input_data = sound_data[0:RATE]
-        idx, score, label = classifier.run(input_data)
-        frames.pop(0)
+        np.append(frames, data)
+        np.delete(frames, range(0, len(data)-1))
+        idx, score, label = classifier.run(frames)
         if idx == hit_index and score > .4:
             hit_count += 1
         else:
@@ -113,20 +109,22 @@ def get_labels_simple(data_stream, classifier):
             hit_index = idx
         if hit_index != 0 and hit_count > 3:
             yield label
-            frames = []
-        else:
-            del frames[0]
+            frames = np.zeros((INPUT_SIZE, 1))
 
+buff_size = 6
 
 def get_labels_raw(data_stream, classifier):
-    frames = []
-
+    odd = buff_size
+    chunk_count = INPUT_SIZE / CHUNK_SIZE
+    frames = deque([np.zeros(CHUNK_SIZE)]*chunk_count)
     for data in data_stream:
+        odd -= 1
         frames.append(data)
-        all_frames = np.concatenate(frames)
-        if len(all_frames) < RATE:
+        frames.popleft()
+        if odd != 0:
             continue
-        sound_data = np.reshape(all_frames, (len(all_frames), 1))
-        input_data = sound_data[0:RATE]
-        yield classifier.run(input_data)
-        del frames[0]
+        odd = buff_size
+        stacked = np.hstack(frames)
+        padded = np.concatenate([stacked, np.zeros(INPUT_SIZE-len(stacked))])
+        input_vector = np.reshape(padded, (INPUT_SIZE, 1))
+        yield classifier.run(input_vector)
