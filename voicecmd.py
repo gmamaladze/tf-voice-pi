@@ -1,9 +1,12 @@
 import numpy as np
 import math
 from collections import deque
+import threading
 
 INPUT_SIZE = 16000
 CHUNK_SIZE = 1000
+CHUNK_COUNT = INPUT_SIZE / CHUNK_SIZE
+
 
 def is_silence(data, threshold):
     square_mean = np.mean(data ** 2)
@@ -61,70 +64,88 @@ def get_confident_labels(labels_stream):
                 confidence += 1
 
 
-def calibrate_silence(data_stream, classifier, sample_count=100):
+def calibrate_silence(data_stream, classifier):
     max_silence = 0
-    max_sound = 0
-    commands = np.array([0])
-    frames = []
-    print("Calibrating silence threshold. Please say random commands with 2-3 seconds pauses in between.")
+    print("Calibrating silence threshold ...")
+    chunk_count = 0
+    batch_size = INPUT_SIZE // CHUNK_SIZE
 
+    frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
     for data in data_stream:
-        frames.append(data)
-        all_frames = np.concatenate(frames)
-        if len(all_frames) < INPUT_SIZE:
-            continue
-        sound_data = np.reshape(all_frames, (len(all_frames), 1))
-        input_data = sound_data[0:INPUT_SIZE]
-        idx, score, label = classifier.run(input_data)
-        square_mean = np.mean(input_data ** 2)
-        symbol = "." if idx == 0 else "*"
-        # print(symbol)
-        print(label, ";", score, ";", square_mean)
-        frames.pop(0)
-        max_sound = max(max_sound, math.sqrt(square_mean))
-        if idx == 0:
-            max_silence = max(max_silence, square_mean)
-            sample_count -= 1
-            if sample_count == 0:
-                break
-        else:
-            if score > 0.5:
-                np.append(commands, [square_mean])
-    return max_silence, np.average(commands), max_sound
-
-
-def get_labels_simple(data_stream, classifier):
-    hit_count = 0
-    hit_index = -1
-    frames = np.zeros((INPUT_SIZE, 1))
-
-    for data in data_stream:
-        np.append(frames, data)
-        np.delete(frames, range(0, len(data)-1))
-        idx, score, label = classifier.run(frames)
-        if idx == hit_index and score > .4:
-            hit_count += 1
-        else:
-            hit_count = 0
-            hit_index = idx
-        if hit_index != 0 and hit_count > 3:
-            yield label
-            frames = np.zeros((INPUT_SIZE, 1))
-
-buff_size = 6
-
-def get_labels_raw(data_stream, classifier):
-    odd = buff_size
-    chunk_count = INPUT_SIZE / CHUNK_SIZE
-    frames = deque([np.zeros(CHUNK_SIZE)]*chunk_count)
-    for data in data_stream:
-        odd -= 1
         frames.append(data)
         frames.popleft()
-        if odd != 0:
+
+        if (chunk_count % batch_size) != 0:
+            chunk_count += 1
             continue
-        odd = buff_size
-        stacked = np.hstack(frames)
-        padded = np.concatenate([stacked, np.zeros(INPUT_SIZE-len(stacked))])
-        input_vector = np.reshape(padded, (INPUT_SIZE, 1))
-        yield classifier.run(input_vector)
+        if chunk_count > batch_size * 10:
+            break
+        chunk_count += 1
+        idx, label, score = classify(classifier, frames)
+
+        square_mean = np.mean(np.hstack(frames) ** 2)
+        if idx == 0:
+            max_silence = max(max_silence, square_mean)
+            print(".")
+        else:
+            print("*")
+    return max_silence
+
+
+def get_labels_batched(data_stream, classifier, threshold, batch_size):
+    chunk_count = 0
+    frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
+    for data in data_stream:
+        frames.append(data)
+        frames.popleft()
+
+        if (chunk_count % batch_size) != 0:
+            chunk_count += 1
+            continue
+
+        first_square_mean = np.mean(frames[0] ** 2)
+        if threshold > first_square_mean:
+            chunk_count = 0
+            yield 0, classifier.labels[0], .9
+            continue
+
+        yield classify(classifier, frames)
+        frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
+        chunk_count = 0
+
+
+def get_labels_simple(data_stream, classifier, threshold):
+    frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
+    for data in data_stream:
+        frames.append(data)
+        frames.popleft()
+        first_square_mean = np.mean(frames[0] ** 2)
+        if threshold * 2 > first_square_mean:
+            yield 0, classifier.labels[0], .9
+            continue
+
+        idx, label, score = classify(classifier, frames)
+        if idx != 0 and score > .5:
+            yield idx, score, label
+            frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
+
+
+def classify(classifier, frames):
+    stacked = np.hstack(frames)
+    padded = np.concatenate([stacked, np.zeros(INPUT_SIZE - len(stacked))])
+    input_vector = np.reshape(padded, (INPUT_SIZE, 1))
+    idx, score, label = classifier.run(input_vector)
+    return idx, label, score
+
+
+def get_labels_raw(data_stream, classifier):
+    batch_size = 16
+    frame_counter = 0
+    frames = deque([np.zeros(CHUNK_SIZE)] * CHUNK_COUNT)
+    for data in data_stream:
+        frames.append(data)
+        frames.popleft()
+        frame_counter += 1
+        if (frame_counter % batch_size) != 0:
+            continue
+        yield classify(classifier, frames)

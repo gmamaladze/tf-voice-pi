@@ -9,6 +9,7 @@ frames.append(a1)
 frames.append(a2)
 print(frames)
 frames = np.hstack(frames)
+print(frames)
 frames = np.concatenate([frames, np.zeros(2)])
 #frames = frames[3:]
 print(frames)
