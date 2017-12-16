@@ -1,13 +1,7 @@
-import os
-import math
 import numpy as np
 import curses
-
-isRaspberryPi = (os.uname()[4][:3] == 'arm')
-if isRaspberryPi:
-    import mic_pi as mic
-else:
-    import mic
+import voicecmd
+import mic
 
 
 def draw():
@@ -15,10 +9,21 @@ def draw():
     height, width = screen.getmaxyx()
     curses.endwin()
 
-    for data in mic.get_mic_data():
-        mean = math.sqrt(np.mean(data ** 2))
-        display_value = min(int(mean * 1000), width)
-        print("#"*display_value)
+    audio_in = mic.MicPortAudio(16000)
+
+    raw_stream = \
+        voicecmd.get_labels(
+            audio_in.get_mic_data_async())
+
+    counter = 0
+
+    for idx, score, label, first in raw_stream:
+        mean = np.sum(np.absolute(first))
+        display_value = min(int(mean), width - 12)
+        nr = counter % 16
+        nr_text = str(nr) if nr < 10 else chr(ord('A') + (nr - 10))
+        print(nr_text + " " + label.ljust(10) + " " + str(int(score * 100)) + " " + ("#" * display_value))
+        counter += 1
 
 
 draw()

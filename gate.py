@@ -3,7 +3,7 @@ import abc
 NOT_SET = -1
 
 
-class Warrantor(metaclass=abc.ABCMeta):
+class Gate(metaclass=abc.ABCMeta):
     def __init__(self):
         pass
 
@@ -16,7 +16,7 @@ class Warrantor(metaclass=abc.ABCMeta):
         pass
 
 
-class NullWarrantor(Warrantor):
+class NullGate(Gate):
     def is_confident(self, index, score):
         return True
 
@@ -24,10 +24,10 @@ class NullWarrantor(Warrantor):
         pass
 
 
-class SimpleWarrantor(Warrantor):
+class SimpleGate(Gate):
 
     def __init__(self, score):
-        Warrantor.__init__(self)
+        Gate.__init__(self)
         self.score = score
 
     def is_confident(self, index, score):
@@ -37,10 +37,10 @@ class SimpleWarrantor(Warrantor):
         pass
 
 
-class HitCountWarrantor(Warrantor):
+class HitCountGate(Gate):
 
     def __init__(self, hit_scores=None):
-        Warrantor.__init__(self)
+        Gate.__init__(self)
         if hit_scores is None:
             hit_scores = [.9, .6, .3]
         self.last_idx = NOT_SET

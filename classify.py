@@ -9,17 +9,26 @@ import tensorflow as tf
 
 DEFAULT_GRAPH_FILE = "conv_actions_frozen.pb"
 DEFAULT_LABELS_FILE = "conv_actions_labels.txt"
-DEFAULT_SAMPLE_RATE = 16000
+DEFAULT_INPUT_SIZE = 16000
+
+
+class NullClassifier:
+    def __init__(self):
+        self.labels = ["_none_"]
+        pass
+
+    def run(self, data):
+        return 0, 1, self.labels[0]
 
 
 class Classifier:
     def __init__(self,
                  graph_file=DEFAULT_GRAPH_FILE,
                  labels_file=DEFAULT_LABELS_FILE,
-                 sample_rate=DEFAULT_SAMPLE_RATE):
+                 input_size=DEFAULT_INPUT_SIZE):
         load_graph(graph_file)
         self.labels = load_labels(labels_file)
-        self.sample_rate = sample_rate
+        self.sample_rate = input_size
         pass
 
     def run(self, data):
@@ -56,7 +65,6 @@ def load_labels(filename=DEFAULT_LABELS_FILE):
         if not (label.startswith("_") and label.endswith("_")):
             print(label)
     return labels
-
 
 
 INPUT_LAYER_NAME = "decoded_sample_data:0"
