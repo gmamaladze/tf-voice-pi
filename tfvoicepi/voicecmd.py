@@ -1,7 +1,7 @@
 import numpy as np
 from collections import deque
-import gate
-import classify
+from . import gate
+from . import classify
 
 INPUT_SIZE = 16000
 CHUNK_SIZE = 1000

@@ -1,7 +1,7 @@
 import numpy as np
 import curses
-import voicecmd
-import mic
+from . import voicecmd
+from . import mic
 
 
 def draw():

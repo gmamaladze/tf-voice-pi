@@ -1,7 +1,6 @@
 import os
 
-import classify
-import voicecmd
+from tfvoicepi import classify, voicecmd, mic
 
 isRaspberryPi = (os.uname()[4][:3] == 'arm')
 print("Is raspberry pi:", isRaspberryPi)
@@ -10,7 +9,6 @@ if isRaspberryPi:
     import mic_pi as mic
     import robot
 else:
-    import mic
     import robot_mock as robot
 
 classifier = classify.Classifier()

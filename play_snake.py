@@ -4,14 +4,13 @@ import threading
 import time
 
 import examples.Snake
-import classify
-import voicecmd
+from tfvoicepi import classify, voicecmd, mic
 
 isRaspberryPi = (os.uname()[4][:3] == 'arm')
 if isRaspberryPi:
     import mic_pi as mic
 else:
-    import mic
+    pass
 
 voice_actions = {
     "up": examples.Snake.UP,

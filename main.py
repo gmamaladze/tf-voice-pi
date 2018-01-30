@@ -1,8 +1,4 @@
-import mic
-import voicecmd
-import classify
-import configuration
-import gate
+from tfvoicepi import *
 
 config = configuration.load()
 audio_in = mic.create_mic(config)
@@ -27,14 +23,14 @@ labels_quick = \
         audio_in.get_mic_data_async(),
         classify.Classifier(),
         should_skip,
-        gate.SimpleGate(.4))
+        gate.SimpleGate(.7))
 
 labels_paranoid = \
     voicecmd.get_labels(
         audio_in.get_mic_data_async(),
         classify.Classifier(),
         should_skip,
-        gate.HitCountGate([.9, .9, .4]))
+        gate.HitCountGate([.9, .9, .9, .4]))
 
 
 for idx, score, label, _ in labels_confident:

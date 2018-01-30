@@ -1,7 +1,6 @@
 from sense_hat import SenseHat
 import threading
-import voicecmd
-import classify
+from tfvoicepi import classify, voicecmd
 import mic_pi as mic
 
 sense = SenseHat()

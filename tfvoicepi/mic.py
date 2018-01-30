@@ -2,8 +2,9 @@ import abc
 import numpy as np
 import struct
 import audioop
-import configuration
 import threading
+from . import configuration
+
 
 try:
     # noinspection PyPep8Naming

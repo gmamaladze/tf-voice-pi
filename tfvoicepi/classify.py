@@ -7,8 +7,8 @@ from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 import tensorflow as tf
 
-DEFAULT_GRAPH_FILE = "conv_actions_frozen.pb"
-DEFAULT_LABELS_FILE = "conv_actions_labels.txt"
+DEFAULT_GRAPH_FILE = "low_latency_svdf_graph.pb"
+DEFAULT_LABELS_FILE = "low_latency_svdf_labels.txt"
 DEFAULT_INPUT_SIZE = 16000
 
 

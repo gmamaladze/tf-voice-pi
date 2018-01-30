@@ -1,1 +1,1 @@
-{"device_sampling_rate": "16000", "device_name": "hw:CARD=Device,DEV=0", "silence_threshold": "0.208760125674"}
+{"device_sampling_rate": "44100", "device_name": "hw:CARD=Device,DEV=0", "silence_threshold": "0.508760125674"}

@@ -1,6 +1,6 @@
-import configuration
-import mic
-import voicecmd
+from . import configuration
+from . import mic
+from . import voicecmd
 import numpy as np
 
 

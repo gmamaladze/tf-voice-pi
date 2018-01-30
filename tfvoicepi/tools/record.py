@@ -1,5 +1,5 @@
 import os
-import voicecmd
+import tfvoicepi.voicecmd
 
 isRaspberryPi = (os.uname()[4][:3] == 'arm')
 print("Is raspberry pi:", isRaspberryPi)
@@ -7,9 +7,9 @@ print("Is raspberry pi:", isRaspberryPi)
 if isRaspberryPi:
     import mic_pi as mic
 else:
-    import mic
+    import tfvoicepi.mic
 
-raw_stream = voicecmd.get_raw(mic.get_mic_data(), 0.00001)
+raw_stream = tfvoicepi.voicecmd.get_raw(tfvoicepi.mic.get_mic_data(), 0.00001)
 
 counter = 0
 for current in raw_stream:
