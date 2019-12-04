@@ -29,7 +29,7 @@ tf==1.0.0
 tf-nightly==1.4.0.dev20171004
 tqdm==4.19.5
 twine==1.9.1
-urllib3==1.22
+urllib3==1.24.2
 virtualenv==15.1.0
 virtualenv-clone==0.2.6
 Werkzeug==0.15.3
