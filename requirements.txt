@@ -10,7 +10,7 @@ html5lib==0.9999999
 idna==2.6
 Markdown==2.6.9
 mccabe==0.6.1
-numpy==1.13.3
+numpy==1.22.0
 packaging==16.8
 pew==1.1.2
 pipenv==9.0.1
